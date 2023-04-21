@@ -1,0 +1,176 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+ul {
+    list-style: none;
+}
+
+img {
+    display: block;
+}
+
+#page1 {
+    width: 100vw;
+    height: 100vh;
+    background: rgb(244, 244, 234);
+    position: relative;
+}
+
+#page1 .page1-lantern {
+    width: 80px;
+    margin:0 auto;
+}
+
+#page1 .page1-lantern img {
+    width: 100%;
+     
+    transform-origin: center top;
+    animation: 4s ease-in-out infinite lantern;
+}
+
+#page1 .page-frame {
+    width: 200px;
+    height: 62px;
+    margin: 20px auto;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: rgb(161, 203, 241)
+}
+
+#page1 .page-text {
+    width: 100%;
+    height: 200px;
+    background: url(../static/title.png) center no-repeat;
+    background-size: 95%;
+    margin: 0 auto;
+    z-index: 2;
+}
+
+#page1 .page-fence {
+    width: 100vw;
+    height: 260px;
+    position: relative;
+}
+
+#page1 .page-p1 {
+    width: 150px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+#page1 img {
+    width: 100%
+}
+
+#page1 .page-p2 {
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    top: 40px;
+    right: 6px;
+    z-index: 9;
+}
+
+#page1 .page-p3 {
+    width: 150px;
+    height: 100px;
+    position: absolute;
+    top: 45px;
+    right: 10px;
+    z-index: 9;
+}
+
+#page1 .page-p4 {
+    width: 70px;
+    height: 100px;
+    position: absolute;
+    top: 93px;
+    right: 0;
+    z-index: 9;
+    animation: 8s ease-in-out infinite drink;
+}
+
+#page1 .page-p5 {
+    width: 150px;
+    height: 100px;
+    position: absolute;
+    top: 45px;
+    left: 0;
+    z-index: 9;
+    transform-origin: center bottom;
+    animation: 5s ease-in-out infinite catWrite;
+}
+
+#page1 .page-p6 {
+    width: 120px;
+    position: absolute;
+    bottom: -25px;
+    right: 0;
+    z-index: 9;
+}
+
+#page1 .page-balloon {
+    width: 100px;
+    position: absolute;
+    top: -40px;
+    left: 0;
+    z-index: 1;
+    animation: 10s linear infinite balloon;
+}
+#page1 .page-balloon1 {
+    width: 100px;
+    position: absolute;
+    top: 70px;
+    left: 30%;
+    z-index: 1;
+    animation: 20s linear infinite balloon;
+}
+#page1 .page-balloon2 {
+    width: 100px;
+    position: absolute;
+    top: -50px;
+    left: 60%;
+    z-index: 1;
+    animation: 20s linear infinite balloon;
+    transform-origin: center bottom;
+    transform: rotate(30deg);
+}
+@keyframes lantern {
+    0%{transform: rotate(-6deg);}
+    50%{transform: rotate(6deg);}
+    100%{transform: rotate(-6deg);}
+}
+@keyframes balloon {
+    0%{transform: translateY(-100px);}
+    50%{transform: translateY(300px);}
+    0%{transform: translateY(500px);}
+}
+@keyframes catWrite {
+    0%{transform: rotate(-3deg);}
+    50%{transform: rotate(3deg);}
+    100%{transform: rotate(-3deg);}
+}
+@keyframes drink {
+    0%{transform: scale(1.2)}
+    50%{transform: scale(0.7);}
+    100%{transform:scale(1.2);}
+}
+#music{
+    width: 35px;
+    height: 35px;
+    background: url(../static/music_cat.png);
+    background-size: cover;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 12;
+}
+#music.run{
+    animation: 2s linear infinite mrun;
+}
+@keyframes mrun{
+    0%{ transform: rotate(0deg);}
+    100%{ transform: rotate(360deg);}
+}

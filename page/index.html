@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+
+
+<body>
+    <div id="page1">
+        <div class="page1-lantern">
+            <img src="../static/page_lantern.png" alt="">
+        </div>
+        <div class="page-frame">
+            04.20 11:59:5<span>5</span>
+        </div>
+        <div class="page-text"></div>
+        <div class="page-fence">
+            <div class="page-p1"><img src="../static/cake1.png" alt=""></div>
+            <div class="page-p2"><img src="../static/gift2.png" alt=""></div>
+            <div class="page-p3"><img src="../static/gift3.png" alt=""></div>
+            <div class="page-p4"><img src="../static/drink.png" alt=""></div>
+            <div class="page-p5"><img src="../static/cat2.png" alt=""></div>
+            <div class="page-p6"><img src="../static/cat.png" alt=""></div>
+
+        </div>
+        <div class="page-balloon"><img src="../static/balloon.png" alt=""></div>
+        <div class="page-balloon1"><img src="../static/balloon.png" alt=""></div>
+        <div class="page-balloon2"><img src="../static/balloon.png" alt=""></div>
+    </div>
+    <div id="page2">
+        <canvas></canvas>
+    </div>
+    <!-- <div id="page3">
+        <div class="page3_arrow"></div>
+        <div class="page3_rocket"></div>
+        <p>
+            点击右上角<br>
+            分享到朋友圈
+        </p>
+    </div> -->
+    
+    <div id="music">
+        <audio src="../static/music.mp3" loop></audio>
+    </div>
+    <div id="fireSound">
+        <audio src="../static/fire_sound1.mp3" loop></audio>
+    </div>
+    <script>
+        
+        loadStatic(['../static/happy_4.png','../static/toFired.png','../static/happy_3.png', '../static/happy_5.png', '../static/happy_6.png', '../static/happy_7.png','../static/happy_8.png']).then((statics) => {
+
+            musicBg();
+            countDown();
+
+            function musicBg() {
+                let music = document.querySelector('#music');
+                let musicAudio = document.querySelector('audio');
+                let fireSoundAudios = document.querySelector('#fireSound audio');
+                musicAudio.volume = 0.3;//音乐音量
+                music.addEventListener('click', function () {
+                    if (musicAudio.paused) {//点击时如果是暂停的，添加className
+                        this.className = 'run'
+                        musicAudio.play();
+                        fireSoundAudios.play();
+                        fireSoundAudios.muted = true;
+
+                    } else {
+                        this.className = ''
+                        musicAudio.pause();
+                        fireSoundAudios.pause();
+
+                    }
+                })
+            }
+            function countDown() {
+                let countNumber = document.querySelector('.page-frame span');
+                let page1 = document.querySelector('#page1');
+                let page2 = document.querySelector('#page2');
+                let timer = setInterval(() => {
+                    if (countNumber.innerHTML == 9) {
+                        clearInterval(timer)
+                        page1.style.display = 'none';
+                        page2.style.display = 'block';
+                        initFires();
+                    } else {
+                        countNumber.innerHTML = ++countNumber.innerHTML
+                    }
+                }, 1000)
+            }
+
+            function initFires() {
+                let canvas = document.querySelector('#page2 canvas');
+                let ctx = canvas.getContext('2d');
+                let fireSoundAudios = document.querySelector('#fireSound audio');
+                let width = window.innerWidth;
+                let height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+
+               
+                let balls = [];
+                let fires = [];
+                let textFires = [];//文字烟花
+                let timer = null;
+                let count = 0;
+                let ballsAll = 30;
+                let textsAll = 6;
+                let textsPos = [
+                    { x: width / 4, y: height / 4 + 70 },
+                    { x: width / 4 * 3, y: height / 4 + 40 },
+                    { x: width / 2, y: height / 2 + 40 },
+                    { x: width / 4, y: height / 4 * 3 + 30},
+                    { x: width / 4 * 3, y: height / 4 * 3 + 120 },
+                    { x: width / 4 , y: height / 4 * 3 + 220 },
+                ];
+
+                let points1 = getImagePoints(statics[0], 4);
+                let points2 = [];
+
+                for (let i = 1; i < statics.length; i++) {
+                    points2.push(getImagePoints(statics[i], 4))
+                }
+                console.log('points1...', points1)
+                timer = setInterval(() => {
+                    if (count == ballsAll) {
+                        clearInterval(timer);
+                        count = 0;
+                        timer = null;
+                        balls.push(
+                            new Ball({
+                                r: 5,
+                                x: width / 2,
+                                y: height,
+                                vx: 0,
+                                vy: -6,
+                                end() {
+                                    if (this.vy > 1) {
+                                        balls.splice(balls.indexOf(this), 1);
+                                        for (let i = 0; i < 60; i++) {
+                                            let power = Math.random() * 10;
+                                            let vx = Math.cos(i * 6 * Math.PI / 180) * power;
+                                            let vy = Math.sin(i * 6 * Math.PI / 180) * power;
+                                            fires.push(
+                                                new Fire({
+                                                    r: 3,
+                                                    x: this.x,
+                                                    y: this.y,
+                                                    vx: vx,
+                                                    vy: vy,
+                                                    g: 0.05,
+                                                    end() {
+                                                        if (this.life < 10) {
+                                                            fires.splice(fires.indexOf(this), 1);
+                                                        }
+                                                    }
+                                                })
+                                            );
+                                        }
+
+                                        for (let i = 0; i < points1.length; i++) {
+                                            let power = 0.05;
+                                            let vx = (points1[i].x - points1.w / 2) * power;
+                                            let vy = (points1[i].y - points1.h / 2) * power;
+                                            textFires.push(
+                                                new textFire({
+                                                    x: this.x,
+                                                    y: this.y,
+                                                    vx: vx,
+                                                    vy: vy,
+                                                    g: 0.03,
+                                                    life: 200,
+                                                    r: 2,
+                                                    end() {
+                                                        if (this.life < 10) {
+                                                            textFires.splice(textFires.indexOf(this), 1);
+                                                        }
+                                                    }
+                                                })
+                                            )
+                                        }
+
+                                        timer = setInterval(() => {
+                                            if (count == textsAll) {
+                                                clearInterval(timer);
+                                                count = 0;
+                                                timer = null;
+                                            } else {
+                                                count++;
+                                                let nowPos = textsPos.pop();
+                                                let power = 0.01;
+                                                let vx = (nowPos.x - width / 2) * power;
+                                                let vy = (nowPos.y - height) * power;
+                                                balls.push(
+                                                    new Ball({
+                                                        x: width / 2,
+                                                        y: height,
+                                                        r: 3,
+                                                        vx: vx,
+                                                        vy: vy,
+                                                        tx: nowPos.x,
+                                                        ty: nowPos.y,
+                                                        index: count - 1,
+                                                        g: 0,
+                                                        end() {
+                                                            if (this.y - this.ty < 0) {
+                                                                balls.splice(balls.indexOf(this), 1);
+                                                                for (let i = 0; i < 60; i++) {
+                                                                    let power = Math.random() * 10;
+                                                                    let vx = Math.cos(i * 6 * Math.PI / 180) * power;
+                                                                    let vy = Math.sin(i * 6 * Math.PI / 180) * power;
+                                                                    let color = `rgb(${parseInt(Math.random() * 255)},${parseInt(Math.random() * 255)},${parseInt(Math.random() * 255)})`
+                                                                    fires.push(
+                                                                        new Fire({
+                                                                            color:color,
+                                                                            r: 1,
+                                                                            x: this.x,
+                                                                            y: this.y,
+                                                                            vx: vx,
+                                                                            vy: vy,
+                                                                            g: 0,
+                                                                            life: 300,
+                                                                        })
+                                                                    );
+                                                                }
+                                                                for (let i = 0; i < points2[this.index].length; i++) {
+                                                                    let power = 0.05;
+                                                                    let vx = (points2[this.index][i].x - points2[this.index].w / 2) * power;
+                                                                    let vy = (points2[this.index][i].y - points2[this.index].h / 2) * power;
+                                                                    textFires.push(
+                                                                        new textFire({
+                                                                            color:this.color,
+                                                                            x: this.x,
+                                                                            y: this.y,
+                                                                            vx: vx,
+                                                                            vy: vy,
+                                                                            g: 0,
+                                                                            fs:0.9, 
+                                                                            life: 300,
+                                                                            r: 1,
+                                                                        })
+                                                                    )
+                                                                }
+
+                                                            }
+                                                        }
+                                                    })
+                                                )
+                                            }
+                                        }, 300)
+
+                                    }
+                                }
+                            })
+                        )
+                    } else {
+                        count++;
+                        //----------------------------
+                        //红色烟花
+                        balls.push(
+                            new Ball({
+                                r: 3,
+                                x: Math.random() * width / 3 + width / 3,
+                                y: height,
+                                vx: Math.random() * 2 - 1,
+                                vy: - Math.random() * 2 - 9,
+                                end() {
+                                    if (this.vy > 1) {
+                                        balls.splice(balls.indexOf(this), 1);
+                                        let size = Math.random() * 10;
+                                        for (let i = 0; i < 60; i++) {
+                                            let power = Math.random() * size;
+                                            let vx = Math.cos(i * 6 * Math.PI / 180) * power;
+                                            let vy = Math.sin(i * 6 * Math.PI / 180) * power;
+                                            fires.push(
+                                                new Fire({
+                                                    r: 3,
+                                                    x: this.x,
+                                                    y: this.y,
+                                                    vx: vx,
+                                                    vy: vy,
+                                                    g: 0.05,
+                                                    end() {
+                                                        if (this.life < 10) {
+                                                            fires.splice(fires.indexOf(this), 1);
+                                                        }
+                                                    }
+                                                })
+                                            )
+                                        }
+                                    }
+                                }
+                            })
+                        );
+                        //紫色烟花
+                        balls.push(
+                            new Ball({
+                                r: 3,
+                                x: Math.random() * width / 3 + width / 3,
+                                y: height,
+                                vx: Math.random() * 2 - 1,
+                                vy: - Math.random() * 2 - 9,
+                                color:'rgb(199,158,211)',
+                                end() {
+                                    if (this.vy > 1) {
+                                        balls.splice(balls.indexOf(this), 1);
+                                        let size = Math.random() * 10;
+                                        for (let i = 0; i < 60; i++) {
+                                            let power = Math.random() * size;
+                                            let vx = Math.cos(i * 6 * Math.PI / 180) * power;
+                                            let vy = Math.sin(i * 6 * Math.PI / 180) * power;
+                                            fires.push(
+                                                new Fire({
+                                                    r: 3,
+                                                    x: this.x,
+                                                    y: this.y,
+                                                    vx: vx,
+                                                    vy: vy,
+                                                    g: 0.05,
+                                                    color:'rgb(199,158,211)',
+                                                    end() {
+                                                        if (this.life < 10) {
+                                                            fires.splice(fires.indexOf(this), 1);
+                                                        }
+                                                    }
+                                                })
+                                            )
+                                        }
+                                    }
+                                }
+                            })
+                        );
+                        //绿色烟花
+                        balls.push(
+                            new Ball({
+                                r: 3,
+                                x: Math.random() * width / 3 + width / 3,
+                                y: height,
+                                vx: Math.random() * 2 - 1,
+                                vy: - Math.random() * 2 - 9,
+                                color:'rgb(121,183,88)',
+                                end() {
+                                    if (this.vy > 1) {
+                                        balls.splice(balls.indexOf(this), 1);
+                                        let size = Math.random() * 10;
+                                        for (let i = 0; i < 60; i++) {
+                                            let power = Math.random() * size;
+                                            let vx = Math.cos(i * 6 * Math.PI / 180) * power;
+                                            let vy = Math.sin(i * 6 * Math.PI / 180) * power;
+                                            fires.push(
+                                                new Fire({
+                                                    r: 3,
+                                                    x: this.x,
+                                                    y: this.y,
+                                                    vx: vx,
+                                                    vy: vy,
+                                                    g: 0.05,
+                                                    color:'rgb(121,183,88)',
+                                                    end() {
+                                                        if (this.life < 10) {
+                                                            fires.splice(fires.indexOf(this), 1);
+                                                        }
+                                                    }
+                                                })
+                                            )
+                                        }
+                                    }
+                                }
+                            })
+                        );
+                        //蓝色烟花
+                        balls.push(
+                            new Ball({
+                                r: 3,
+                                x: Math.random() * width / 3 + width / 3,
+                                y: height,
+                                vx: Math.random() * 2 - 1,
+                                vy: - Math.random() * 2 - 9,
+                                color:'rgb(116,204,245)',
+                                end() {
+                                    if (this.vy > 1) {
+                                        balls.splice(balls.indexOf(this), 1);
+                                        let size = Math.random() * 10;
+                                        for (let i = 0; i < 60; i++) {
+                                            let power = Math.random() * size;
+                                            let vx = Math.cos(i * 6 * Math.PI / 180) * power;
+                                            let vy = Math.sin(i * 6 * Math.PI / 180) * power;
+                                            fires.push(
+                                                new Fire({
+                                                    r: 3,
+                                                    x: this.x,
+                                                    y: this.y,
+                                                    vx: vx,
+                                                    vy: vy,
+                                                    g: 0.05,
+                                                    color:'rgb(116,204,245)',
+                                                    end() {
+                                                        if (this.life < 10) {
+                                                            fires.splice(fires.indexOf(this), 1);
+                                                        }
+                                                    }
+                                                })
+                                            )
+                                        }
+                                    }
+                                }
+                            })
+                        );
+                        //----------------------------
+                    }
+                }, 500);
+                loop();
+                function loop() {
+                    if (balls.length) {
+                        fireSoundAudios.muted = false;
+
+                        ctx.fillStyle = 'rgba(238,238,230,0.2)';
+                        ctx.fillRect(0, 0, width, height);
+                    } else {
+                        fireSoundAudios.muted = true;
+                        ctx.fillStyle = 'rgb(238,238,230)';
+                        ctx.fillRect(0, 0, width, height);
+                    }
+
+
+                    for (let i = 0; i < balls.length; i++) {
+                        balls[i].updata();
+                        balls[i].render();
+                    }
+                    for (let i = 0; i < fires.length; i++) {
+                        fires[i].updata();
+                        fires[i].render();
+                    }
+                    for (let i = 0; i < textFires.length; i++) {
+                        textFires[i].updata();
+                        textFires[i].render();
+                    }
+
+                    requestAnimationFrame(loop);
+                }
+                //一个关于小球的类
+                class Ball {
+                    constructor(options) {
+                        this.settings = Object.assign({
+                            color: 'rgb(213,99,57)',
+                            r: 5,//半径
+                            g: 0.1,//重力加速度
+                            end() { }//用来控制小球结束的
+                        }, options);
+                        //为了取值方便，将this.settings挂载到this上
+                        for (let attr in this.settings) {
+                            this[attr] = this.settings[attr];
+                        }
+                    }
+                    updata() {
+                        this.x += this.vx;
+                        this.y += this.vy;
+                        this.vy += this.g;
+                    }
+                    //对图的重新绘制
+                    render() {
+                        //作用范围
+                        ctx.beginPath();
+                        ctx.fillStyle = this.color;
+                        //绘制小圆
+                        ctx.arc(this.x, this.y, this.r, 0, 360 * Math.PI / 180);
+                        ctx.closePath();
+                        //绘制填充的小圆
+                        ctx.fill();
+                        this.end();
+                    }
+                }
+
+                class Fire {
+                    constructor(options) {
+                        this.settings = Object.assign({
+                            color: 'rgb(213,99,57)',
+                            r: 5,//半径
+                            g: 0.1,//重力加速度
+                            fs: 0.95,//摩擦系数
+                            life: 100,//生命值
+                            end() { }//用来控制小球结束的
+                        }, options);
+                        //为了取值方便，将this.settings挂载到this上
+                        for (let attr in this.settings) {
+                            this[attr] = this.settings[attr];
+                        }
+                    }
+                    updata() {
+                        this.x += this.vx;
+                        this.y += this.vy;
+                        this.vy += this.g;
+                        this.vx *= this.fs;
+                        this.vy *= this.fs;
+                        if (this.life > 0 && this.life < 300) {
+                            this.life--;
+                        }
+                    }
+                    //对图的重新绘制
+                    render() {
+                        //作用范围
+                        ctx.beginPath();
+                        ctx.fillStyle = this.color;
+                        //绘制小圆 (小球的半径随着生命值变小而变小)
+                        ctx.arc(this.x, this.y, this.r * Math.min(this.life, 100) / 100, 0, 360 * Math.PI / 180);
+                        ctx.closePath();
+                        //绘制填充的小圆
+                        ctx.fill();
+                        this.end();
+                    }
+                }
+
+
+                class textFire {
+                    constructor(options) {
+                        this.settings = Object.assign({
+                            // color: 'rgb(121,183,88)',
+                            r: 5,//半径
+                            g: 0.1,//重力加速度
+                            fs: 0.95,//摩擦系数
+                            life: 100,//生命值
+                            end() { }//用来控制小球结束的
+                        }, options);
+                        //为了取值方便，将this.settings挂载到this上
+                        for (let attr in this.settings) {
+                            this[attr] = this.settings[attr];
+                        }
+                    }
+                    updata() {
+                        this.x += this.vx;
+                        this.y += this.vy;
+                        if (this.life < 100) {
+                            this.vy += this.g;
+                        };
+                        this.vx *= this.fs;
+                        this.vy *= this.fs;
+                        if (this.life > 0 && this.life < 300) {
+                            this.life--;
+                        }
+                    }
+                    //对图的重新绘制
+                    render() {
+                        //作用范围
+                        ctx.beginPath();
+                        ctx.fillStyle = this.color;
+                        //绘制小圆 (小球的半径随着生命值变小而变小)
+                        ctx.arc(this.x, this.y, this.r * Math.min(this.life, 100) / 100, 0, 360 * Math.PI / 180);
+                        ctx.closePath();
+                        //绘制填充的小圆
+                        ctx.fill();
+                        this.end();
+                    }
+                }
+                function getImagePoints(img, level = 5) {
+                    let width = img.width;
+                    let heightt = img.height;
+                    let points = [];
+                    let x = Math.floor(width / level);
+                    let y = Math.floor(height / level);
+                    let imgData = null;
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.beginPath();
+                    ctx.drawImage(img, 0, 0);
+                    ctx.closePath();
+                    imgData = ctx.getImageData(0, 0, width, height);
+                    ctx.clearRect(0, 0, width, height);
+                    points.w = width;
+                    points.h = height;
+
+                    for (let i = 0; i < y; i++) {
+                        for (let j = 0; j < x; j++) {
+                            let colors = getImageColor(imgData, j * level, i * level);
+                            if (colors[0] == 206 && colors[1] == 106 && colors[2] == 107) {
+                                points.push({ x: j * level, y: i * level });
+                            }
+                            // points.push({ x: j * level, y: i * level });
+                        }
+                    }
+
+
+                    return points;
+                }
+
+                function getImageColor(imgData, x, y) {
+                    let w = imgData.width;
+                    let h = imgData.height;
+                    let d = imgData.data;
+                    let colors = [];
+                    colors[0] = d[(y * w + x) * 4];
+                    colors[1] = d[(y * w + x) * 4 + 1];
+                    colors[2] = d[(y * w + x) * 4 + 2];
+                    colors[3] = d[(y * w + x) * 4 + 3];
+                    colors[4] = d[(y * w + x) * 4 + 4];
+                    return colors;
+                }
+            }
+
+        });
+
+        function loadStatic(arr) {
+            let promises = [];
+            for (let i = 0; i < arr.length; i++) {
+                let promise = new Promise(function (resolvve, reject) {
+                    let img = new Image();
+                    // img.crossOrigin = '';
+                    img.src = arr[i];
+                    img.onload = function () {
+                        resolvve(img);
+                    };
+                });
+                promises.push(promise);
+            }
+            return Promise.all(promises);
+        }
+    </script>
+</body>
+
+</html>
